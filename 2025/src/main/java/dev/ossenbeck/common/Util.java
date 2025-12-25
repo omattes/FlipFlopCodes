@@ -1,5 +1,6 @@
 package dev.ossenbeck.common;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
@@ -13,11 +14,18 @@ public class Util {
     public static final Pattern SINGLE_CHAR_SEPARATOR = Pattern.compile("");
     public static final Pattern NUMBER_PATTERN = Pattern.compile("(-?\\d+)");
 
-    public static List<Integer> parseNumbers(String line) {
+    public static IntStream parseNumbers(String line) {
         return NUMBER_PATTERN.matcher(line).results()
                 .map(MatchResult::group)
-                .map(Integer::parseInt)
-                .toList();
+                .mapToInt(Integer::parseInt);
+    }
+
+    public static List<Integer> parseNumbersAsList(String line) {
+        return parseNumbers(line).boxed().toList();
+    }
+
+    public static int[] parseNumbersAsArray(String line) {
+        return parseNumbers(line).toArray();
     }
 
     public static List<String> zip(List<String> rows) {
@@ -62,5 +70,29 @@ public class Util {
 
     public static int concatNumbers(int a, int b) {
         return Integer.parseInt(String.valueOf(a) + b);
+    }
+
+    public static int mod(int value, int mod) {
+        return (value % mod + mod) % mod;
+    }
+
+    public static long mod(long value, long mod) {
+        return (value % mod + mod) % mod;
+    }
+
+    public static long factorial(long n) {
+        var result = 1L;
+        for (var i = 2; i <= n; i++) {
+            result *= i;
+        }
+        return result;
+    }
+
+    public static BigInteger factorialBig(long n) {
+        var result = BigInteger.ONE;
+        for (var i = 2; i <= n; i++) {
+            result = result.multiply(BigInteger.valueOf(i));
+        }
+        return result;
     }
 }

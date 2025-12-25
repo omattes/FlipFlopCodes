@@ -1,12 +1,18 @@
 package dev.ossenbeck.common;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static dev.ossenbeck.common.Util.mod;
+
 public record Grid(char[][] grid) {
+    public static Grid from(List<String> input) {
+        return new Grid(input.stream().map(String::toCharArray).toArray(char[][]::new));
+    }
+
     public boolean isInBounds(Coordinate coordinate) {
         return coordinate.y() >= 0 && coordinate.y() < height()
                 && coordinate.x() >= 0 && coordinate.x() < width();
@@ -26,6 +32,10 @@ public record Grid(char[][] grid) {
 
     public char charAt(Coordinate coordinate) {
         return grid[coordinate.y()][coordinate.x()];
+    }
+
+    public char charAt(int x, int y) {
+        return grid[y][x];
     }
 
     public void replaceCharAt(Coordinate coordinate, char newChar) {
@@ -54,23 +64,6 @@ public record Grid(char[][] grid) {
         }
     }
 
-    public void printCount(Set<Position> toHighlight) {
-        for (var y = 0; y < height(); y++) {
-            for (var x = 0; x < width(); x++) {
-                var hits = toHighlight.stream()
-                        .map(Position::coordinate)
-                        .filter(new Coordinate(x, y)::equals)
-                        .count();
-                if (hits != 0) {
-                    System.out.print(hits);
-                    continue;
-                }
-                System.out.print(grid[y][x]);
-            }
-            System.out.println();
-        }
-    }
-
     public Coordinate find(char charToFind) {
         return traverse()
                 .filter(coordinate -> charAt(coordinate) == charToFind)
@@ -78,26 +71,8 @@ public record Grid(char[][] grid) {
                 .orElseThrow();
     }
 
-    public List<Coordinate> findAll(char charToFind) {
-        return traverse()
-                .filter(coordinate -> charAt(coordinate) == charToFind)
-                .collect(Collectors.toList());
-    }
-
-    public boolean isInQuadrantI(Coordinate c) {
-        return c.x() > width() / 2 && c.y() < height() / 2;
-    }
-
-    public boolean isInQuadrantII(Coordinate c) {
-        return c.x() < width() / 2 && c.y() < height() / 2;
-    }
-
-    public boolean isInQuadrantIII(Coordinate c) {
-        return c.x() < width() / 2 && c.y() > height() / 2;
-    }
-
-    public boolean isInQuadrantIV(Coordinate c) {
-        return c.x() > width() / 2 && c.y() > height() / 2;
+    public Stream<Coordinate> findAll(char charToFind) {
+        return traverse().filter(coordinate -> charAt(coordinate) == charToFind);
     }
 
     public int width() {
@@ -109,10 +84,7 @@ public record Grid(char[][] grid) {
     }
 
     public Coordinate wrapAround(Coordinate c) {
-        return new Coordinate(
-                (c.x() % width() + width()) % width(),
-                (c.y() % height() + height()) % height()
-        );
+        return new Coordinate(mod(c.x(), width()), mod(c.y(), height()));
     }
 
     public Grid copy() {
@@ -121,5 +93,21 @@ public record Grid(char[][] grid) {
                         .mapToObj(y -> grid[y].clone())
                         .toArray(char[][]::new)
         );
+    }
+
+    public Stream<char[]> stream() {
+        return Arrays.stream(grid);
+    }
+
+    public Grid transpose() {
+        var rows = height();
+        var cols = width();
+        var transposed = new char[cols][rows];
+        for (var r = 0; r < rows; r++) {
+            for (var c = 0; c < cols; c++) {
+                transposed[c][r] = grid[r][c];
+            }
+        }
+        return new Grid(transposed);
     }
 }

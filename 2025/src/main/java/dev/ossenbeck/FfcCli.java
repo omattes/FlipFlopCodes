@@ -1,6 +1,5 @@
 package dev.ossenbeck;
 
-
 import dev.ossenbeck.common.Util;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -12,7 +11,6 @@ import java.util.concurrent.Callable;
 import static picocli.CommandLine.Command;
 import static picocli.CommandLine.Option;
 
-
 @Command(name = "ffcrun",
         mixinStandardHelpOptions = true,
         version = "ffcrun 1.0.0",
@@ -23,7 +21,7 @@ public class FfcCli implements Callable<Integer> {
             description = "Space-separated list of puzzles to run (e.g. 1 5 20).",
             defaultValue = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
     )
-    private String days;
+    private String puzzles;
 
     @Option(
             names = {"-b", "--benchmark"},
@@ -40,15 +38,15 @@ public class FfcCli implements Callable<Integer> {
 
     @Override
     public Integer call() {
-        for (var day : Util.parseNumbers(days)) {
+        for (var puzzle : Util.parseNumbersAsList(puzzles)) {
             try {
-                puzzleRunner.run(day);
+                puzzleRunner.run(puzzle);
                 if (benchmark) {
-                    runBenchmarks(day);
+                    runBenchmarks(puzzle);
                 }
             } catch (Exception e) {
                 if (showError) {
-                    System.out.println("There was an error loading the puzzle for day " + day);
+                    System.out.println("There was an error loading the puzzle " + puzzle);
                     e.printStackTrace();
                 }
             }
@@ -56,11 +54,11 @@ public class FfcCli implements Callable<Integer> {
         return 0;
     }
 
-    private void runBenchmarks(int day) throws RunnerException {
-        System.out.println("Running benchmark for Puzzle " + day);
+    private void runBenchmarks(int puzzle) throws RunnerException {
+        System.out.println("Running benchmark for puzzle " + puzzle);
         var options = new OptionsBuilder()
                 .include(BenchmarkRunner.class.getSimpleName())
-                .param("puzzle", String.valueOf(day))
+                .param("puzzle", String.valueOf(puzzle))
                 .forks(1)
                 .build();
 
