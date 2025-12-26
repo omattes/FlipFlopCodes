@@ -1,0 +1,4 @@
+# Example input
+3,3
+9,9
+6,6

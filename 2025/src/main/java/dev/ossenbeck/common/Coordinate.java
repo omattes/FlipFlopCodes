@@ -15,7 +15,11 @@ public record Coordinate(int x, int y) {
         return new Coordinate(x + dX, y + dY);
     }
 
-    public int manhattanDistance(Coordinate other) {
+    public long manhattanDistance(Coordinate other) {
         return Math.abs(x - other.x) + Math.abs(y - other.y);
+    }
+    
+    public long chebyshevDistance(Coordinate other) {
+        return Math.max(Math.abs(x - other.x), Math.abs(y - other.y));
     }
 }
